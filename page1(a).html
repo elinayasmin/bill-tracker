@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <div class="logo">
+        <img src="jsw.png" alt="JSW Logo">
+    </div>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Tracker</title>
+    <link rel="stylesheet" href="style(page1).css">
+    <script>
+        function storeSelection(id, key) {
+            localStorage.setItem(key, document.getElementById(id).value);
+        }
+    </script>
+</head>
+<body>
+    <script src="frontend/app.js"></script>
+    <script src="scripts/page1.js"></script>
+     <script src="scripts/navigation.js" defer></script>
+
+    <div class="container">
+        <h1>Welcome to Bill Tracker</h1>
+     
+        <form id="billTrackerForm" action="page3(viewer).html" method="GET">
+            <div class="form-group">
+                <label for="vendor">Vendor Name</label>
+                <select id="vendorDropdown" name="vendor" required>
+                    <option value="">Select Vendor</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="invoice">Invoice No.</label>
+                <input type="text" id="invoice" name="invoice" placeholder="Enter Invoice No." required>
+            </div>
+
+            <div class="form-group">
+                <label for="department">Department</label>
+                <select id="department" name="department" required>
+                    <option value="">Select Department</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="hod">HOD</label>
+                <input type="text" id="hod" name="hod" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="date-submit">Date of Submission</label>
+                <input type="date" id="date-submit" name="date-submit" required>
+            </div>
+
+            <div class="form-group">
+                <label for="current-date">Current Date</label>
+                <input type="date" id="current-date" name="current-date" required>
+            </div>
+
+      
+             <button type="submit" class="submit-btn">Approval list(view)</button>
+        </form>
+    </div>
+
+   
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Processing - Approver</title>
+  <link rel="stylesheet" href="style(page 4).css">
+</head>
+<body>
+  <div class="container">
+    <h1>Document Process Updates</h1>
+
+   
+    <div class="form-group">
+      <label>Barcode Attached:</label>
+      <div class="radio-group" required>
+        <label><input type="radio" id="barcodeYes" name="barcodeAttached" value="yes"> Yes</label>
+        <label><input type="radio" id="barcodeNo" name="barcodeAttached" value="no"> No</label>
+      </div>
+    </div>
+
+ 
+    <div class="form-group">
+      <label>Proceeded to Payment Department:</label>
+      <div class="radio-group" required>
+        <label><input type="radio" id="paymentYes" name="paymentDepartment" value="yes"> Yes</label>
+        <label><input type="radio" id="paymentNo" name="paymentDepartment" value="no"> No</label>
+      </div>
+    </div>
+
+   
+    <form action="page5(viewer).html" method="GET">
+      <button type="button" onclick="validateAndSubmit()" class="btn-submit">Submit</button>
+    </form>
+  </div>
+
+
+  <script>
+   
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", function (event) {
+      window.history.pushState(null, "", window.location.href);
+      alert("⚠ Back navigation is disabled on this page.");
+    });
+
+ 
+    window.onbeforeunload = function (event) {
+      event.preventDefault();
+      event.returnValue = "Are you sure you want to leave this page?";
+    };
+
+   
+    function validateAndSubmit() {
+      const barcodeSelected = document.querySelector('input[name="barcodeAttached"]:checked');
+      const paymentSelected = document.querySelector('input[name="paymentDepartment"]:checked');
+
+      if (!barcodeSelected || !paymentSelected) {
+        alert("⚠ Please select Yes or No for both Barcode Attached and Proceeded to Payment Department before submitting.");
+      } else {
+        if (confirm("Are you sure you want to submit?")) {
+        
+          localStorage.setItem("barcodeAttached", barcodeSelected.value);
+          localStorage.setItem("paymentDepartment", paymentSelected.value);
+       
+          window.location.href = "page5(viewer).html"; 
+        }
+      }
+    }
+  </script>
+</body>
+</html>

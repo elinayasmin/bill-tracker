@@ -1,0 +1,17 @@
+{
+  "name": "bill-tracker(2)",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "auth.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "googleapis": "^148.0.0"
+  }
+}

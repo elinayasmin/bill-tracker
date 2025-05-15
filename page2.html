@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approvals Page</title>
+    <link rel="stylesheet" href="style (page 2).css">
+</head>
+<body>
+    <script src="scripts/page2.js"></script>
+     <script src="scripts/navigation.js" defer></script>
+
+    <div class="container">
+        <h1>Approvals</h1>
+<form action="page3.html" method="GET">
+    <div class="form-group">
+    <label for="deptName">Department Name:</label>
+    <select id="deptName" name="deptName" required>
+        
+        <option value="">Select Department</option>
+        <option value="HR">HR</option>
+        <option value="Finance">Finance</option>
+        <option value="IT">IT</option>
+        <option value="PR">PR</option>
+        <option value="Safety">Safety</option>
+    </select>
+</div>
+ <div class="form-group">
+        <label for="invoiceNo">Invoice Number:</label>
+      <input type="text" id="invoiceNo" name="invoiceNo" placeholder="Enter Invoice Number" required>
+    </div>
+
+            <div class="form-grousp">
+                <label for="sapLink">SAP Link:</label>
+                <a href="https://www.example.com" id="sapLink" target="_blank">Go to SAP</a>
+            </div>
+
+            <div class="form-group">
+                <label for="sesNo">Generated SES No.:</label>
+                <input type="text" id="sesNo" name="sesNo" placeholder="Enter the SES number" required>
+            </div>
+
+            <div class="form-group">
+                <label for="approverName">Approver Name:</label>
+                <select id="approverName" name="approverName"required>
+                    <option value="">Select Approver</option>
+                    <option value="Approver 1">Approver 1</option>
+                    <option value="Approver 2">Approver 2</option>
+                    <option value="Approver 3">Approver 3</option>
+                </select>
+            </div>
+
+           
+
+
+            <button type="submit" class="submit-btn">Show me approval list</button>
+        </form>
+    </div>
+</body>
+</html>
