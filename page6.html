@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Check Status</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    .filter-section {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+    .filter-buttons button {
+      margin-right: 10px;
+      margin-bottom: 10px;
+      padding: 5px 10px;
+    }
+    .input-section {
+      margin-top: 10px;
+      padding: 5px 0;
+    }
+    .input-section label {
+      display: inline-block;
+      width: 150px;
+    }
+    .input-section button.remove-filter {
+      margin-left: 10px;
+      padding: 2px 5px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #search-btn {
+      margin-top: 20px;
+      padding: 8px 16px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>CHECK STATUS</h1>
+
+  <button id="toggle-filters-btn">Add Search Filters</button>
+  
+
+  <div id="filters-container" class="filter-section hidden">
+      <div class="filter-buttons">
+         <button type="button" id="btn-invoice">Invoice Number</button>
+         <button type="button" id="btn-department">Department</button>
+         <button type="button" id="btn-date">Date of Submission</button>
+      </div>
+    
+      <div id="filter-inputs"></div>
+  </div>
+  
+ 
+  <button id="search-btn">Search</button>
+  
+  <script>
+    const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
+    const filtersContainer = document.getElementById('filters-container');
+    const filterInputsContainer = document.getElementById('filter-inputs');
+    const searchBtn = document.getElementById('search-btn');
+    
+  
+    let activeFilters = {
+      invoice: false,
+      department: false,
+      date: false
+    };
+    
+    
+    toggleFiltersBtn.addEventListener('click', () => {
+      filtersContainer.classList.toggle('hidden');
+    });
+
+    function updateSearchButtonState() {
+      if (!activeFilters.invoice && !activeFilters.department && !activeFilters.date) {
+        searchBtn.disabled = true;
+      } else {
+        searchBtn.disabled = false;
+      }
+    }
+    
+    updateSearchButtonState();
+
+    document.getElementById('btn-invoice').addEventListener('click', () => {
+      if (!activeFilters.invoice) {
+        const invoiceDiv = document.createElement('div');
+        invoiceDiv.id = 'invoice-input';
+        invoiceDiv.classList.add('input-section');
+        invoiceDiv.innerHTML = `
+          <label for="invoice">Invoice No.:</label>
+          <input type="text" id="invoice" name="invoice" placeholder="Enter invoice number" required>
+          <button type="button" class="remove-filter" data-filter="invoice">Remove</button>
+        `;
+        filterInputsContainer.appendChild(invoiceDiv);
+        activeFilters.invoice = true;
+      }
+      updateSearchButtonState();
+    });
+
+    document.getElementById('btn-department').addEventListener('click', () => {
+      if (!activeFilters.department) {
+        const departmentDiv = document.createElement('div');
+        departmentDiv.id = 'department-input';
+        departmentDiv.classList.add('input-section');
+        departmentDiv.innerHTML = `
+          <label for="department">Department:</label>
+          <select id="department" name="department">
+            <option value="">Select Department</option>
+            <option value="sales">Sales</option>
+            <option value="hr">HR</option>
+            <option value="it">IT</option>
+            <option value="finance">Finance</option>
+            <option value="safety">Safety</option>
+          </select>
+          <button type="button" class="remove-filter" data-filter="department">Remove</button>
+        `;
+        filterInputsContainer.appendChild(departmentDiv);
+        activeFilters.department = true;
+      }
+      updateSearchButtonState();
+    });
+
+    document.getElementById('btn-date').addEventListener('click', () => {
+      if (!activeFilters.date) {
+        const dateDiv = document.createElement('div');
+        dateDiv.id = 'date-input';
+        dateDiv.classList.add('input-section');
+        dateDiv.innerHTML = `
+          <label for="submission-date">Date of Submission:</label>
+          <input type="date" id="submission-date" name="submission-date">
+          <button type="button" class="remove-filter" data-filter="date">Remove</button>
+        `;
+        filterInputsContainer.appendChild(dateDiv);
+        activeFilters.date = true;
+      }
+      updateSearchButtonState();
+    });
+
+    filterInputsContainer.addEventListener('click', (event) => {
+      if (event.target.classList.contains('remove-filter')) {
+        const filterType = event.target.getAttribute('data-filter');
+        event.target.parentElement.remove();
+        activeFilters[filterType] = false;
+        updateSearchButtonState();
+      }
+    });
+
+    searchBtn.addEventListener('click', () => {
+      if (!activeFilters.invoice && !activeFilters.department && !activeFilters.date) {
+        alert("Please select at least one search filter.");
+        return;
+      }
+      
+    
+      const filters = {};
+      if (activeFilters.invoice) {
+        filters.invoice = document.getElementById('invoice').value;
+      }
+      if (activeFilters.department) {
+        filters.department = document.getElementById('department').value;
+      }
+      if (activeFilters.date) {
+        filters.date = document.getElementById('submission-date').value;
+      }
+      
+      console.log("Searching with filters:", filters);
+     
+    });
+  </script>
+  <hr>
+</body>
+</html>
