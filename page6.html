@@ -42,55 +42,53 @@
     .hidden {
       display: none;
     }
+    #search-result {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #007acc;
+      background-color: #f1faff;
+    }
   </style>
 </head>
 <body>
   <h1>CHECK STATUS</h1>
-
   <button id="toggle-filters-btn">Add Search Filters</button>
-  
 
   <div id="filters-container" class="filter-section hidden">
-      <div class="filter-buttons">
-         <button type="button" id="btn-invoice">Invoice Number</button>
-         <button type="button" id="btn-department">Department</button>
-         <button type="button" id="btn-date">Date of Submission</button>
-      </div>
-    
-      <div id="filter-inputs"></div>
+    <div class="filter-buttons">
+      <button type="button" id="btn-invoice">Invoice Number</button>
+      <button type="button" id="btn-department">Department</button>
+      <button type="button" id="btn-date">Date of Submission</button>
+    </div>
+    <div id="filter-inputs"></div>
   </div>
-  
- 
+
   <button id="search-btn">Search</button>
+
+  <div id="search-result"></div>
   
   <script>
+    const API_KEY = "AIzaSyDBEVr0BAAUdQfSa0_0NzLKtp8Z6HYFOkQ";
+    const SPREADSHEET_ID = "1gjHDxitgSFzSfnhfY_OK9Urjm--4MaOf1wsc9je6-C4";
+    const SHEET_NAME = "Sheet4";
+    const RANGE = "A1:Z1000";
+    const googleSheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/1gjHDxitgSFzSfnhfY_OK9Urjm--4MaOf1wsc9je6-C4/values/Sheet4!A1:Z1000?key=AIzaSyDBEVr0BAAUdQfSa0_0NzLKtp8Z6HYFOkQ`;
+
     const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
     const filtersContainer = document.getElementById('filters-container');
     const filterInputsContainer = document.getElementById('filter-inputs');
     const searchBtn = document.getElementById('search-btn');
-    
-  
-    let activeFilters = {
-      invoice: false,
-      department: false,
-      date: false
-    };
-    
-    
+    const resultDiv = document.getElementById('search-result');
+
+    let activeFilters = { invoice: false, department: false, date: false };
     toggleFiltersBtn.addEventListener('click', () => {
       filtersContainer.classList.toggle('hidden');
     });
 
     function updateSearchButtonState() {
-      if (!activeFilters.invoice && !activeFilters.department && !activeFilters.date) {
-        searchBtn.disabled = true;
-      } else {
-        searchBtn.disabled = false;
-      }
+      searchBtn.disabled = !(activeFilters.invoice || activeFilters.department || activeFilters.date);
     }
-    
     updateSearchButtonState();
-
     document.getElementById('btn-invoice').addEventListener('click', () => {
       if (!activeFilters.invoice) {
         const invoiceDiv = document.createElement('div');
@@ -98,7 +96,7 @@
         invoiceDiv.classList.add('input-section');
         invoiceDiv.innerHTML = `
           <label for="invoice">Invoice No.:</label>
-          <input type="text" id="invoice" name="invoice" placeholder="Enter invoice number" required>
+          <input type="text" id="invoice" name="invoice" placeholder="Enter invoice number">
           <button type="button" class="remove-filter" data-filter="invoice">Remove</button>
         `;
         filterInputsContainer.appendChild(invoiceDiv);
@@ -106,7 +104,6 @@
       }
       updateSearchButtonState();
     });
-
     document.getElementById('btn-department').addEventListener('click', () => {
       if (!activeFilters.department) {
         const departmentDiv = document.createElement('div');
@@ -129,7 +126,6 @@
       }
       updateSearchButtonState();
     });
-
     document.getElementById('btn-date').addEventListener('click', () => {
       if (!activeFilters.date) {
         const dateDiv = document.createElement('div');
@@ -145,7 +141,6 @@
       }
       updateSearchButtonState();
     });
-
     filterInputsContainer.addEventListener('click', (event) => {
       if (event.target.classList.contains('remove-filter')) {
         const filterType = event.target.getAttribute('data-filter');
@@ -154,29 +149,91 @@
         updateSearchButtonState();
       }
     });
-
     searchBtn.addEventListener('click', () => {
-      if (!activeFilters.invoice && !activeFilters.department && !activeFilters.date) {
+      if (!(activeFilters.invoice || activeFilters.department || activeFilters.date)) {
         alert("Please select at least one search filter.");
         return;
       }
-      
     
       const filters = {};
-      if (activeFilters.invoice) {
-        filters.invoice = document.getElementById('invoice').value;
-      }
-      if (activeFilters.department) {
-        filters.department = document.getElementById('department').value;
-      }
-      if (activeFilters.date) {
-        filters.date = document.getElementById('submission-date').value;
-      }
+      if (activeFilters.invoice)
+        filters.invoice = document.getElementById('invoice').value.trim();
+      if (activeFilters.department)
+        filters.department = document.getElementById('department').value.trim();
+      if (activeFilters.date)
+        filters.date = document.getElementById('submission-date').value.trim();
       
       console.log("Searching with filters:", filters);
-     
+
+      fetch(googleSheetUrl)
+        .then(response => response.json())
+        .then(data => {
+             console.log("API Response Data:", data); // Log the entire response
+          const rows = data.values;
+          if (!rows || rows.length === 0) {
+            resultDiv.innerHTML = "<h2>No data found in the sheet.</h2>";
+            return;
+          }
+          
+          
+          const headers = rows[0].map(header => header.toLowerCase());
+          console.log("Headers:", headers);
+          const objects = rows.slice(1).map(row => {
+            let obj = {};
+            headers.forEach((header, index) => {
+              obj[header] = row[index] ? String(row[index]).trim() : "";
+            });
+            return obj;
+          });
+          console.log("Data objects:", objects);
+
+          let bestRow = null;
+          let highestScore = 0;
+          objects.forEach(row => {
+           let score = 0;
+         if (filters.invoice) {
+         const filterInvoice = filters.invoice.toLowerCase();
+         let invoiceValue = row["invoice"] ? String(row["invoice"]).trim().toLowerCase() : "";
+         console.log("Comparing Invoice:", invoiceValue, "with", filterInvoice);
+         if (invoiceValue === filterInvoice) {
+         score++;
+       }
+     }
+             if (filters.department) {
+         const filterDepartment = filters.department.toLowerCase();
+         let departmentValue = row["department"] ? String(row["department"]).trim().toLowerCase() : "";
+         console.log("Comparing Deparment:", departmentValue, "with", filterDepartment);
+         if (departmentValue === filterDepartment) {
+         score++;
+       }
+     }
+          if (filters.date) {
+         const filterDate = filters.date.toLowerCase();
+         let dateValue = row["date"] ? String(row["date"]).trim().toLowerCase() : "";
+         console.log("Comparing date:", dateValue, "with", filterDate);
+         if (dateValue === filterDate) {
+         score++;
+       }
+     }
+         
+         console.log("Row score:", score, "for row:", row);
+  if (score > highestScore) {
+    highestScore = score;
+    bestRow = row;
+  }
+});
+
+          if (bestRow && highestScore > 0) {
+            resultDiv.innerHTML = "<h2>Best Matching Row:</h2><pre>" + JSON.stringify(bestRow, null, 2) + "</pre>";
+          } else {
+            resultDiv.innerHTML = "<h2>No matching row found.</h2>";
+          }
+        })
+        .catch(err => {
+          console.error("Error fetching Google Sheet data:", err);
+          resultDiv.innerHTML = "<h2>Error loading data.</h2>";
+        });
     });
   </script>
-  <hr>
 </body>
 </html>
