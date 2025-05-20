@@ -5,74 +5,178 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Check Status</title>
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
+    :root {
+      
+      --blue-background: #002b5b;    
+      --container-bg: #ffffff;        
+      --container-shadow: rgba(0, 0, 0, 0.1);
+      --primary-color: #005fa3;      
+      --primary-hover: #004080;
+      --accent-color: #e74c3c;         
+      --border-color: #ddd;            
     }
+    
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: var(--blue-background);
+      font-family: sans-serif;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: var(--container-bg);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px var(--container-shadow);
+      color: #333;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    
     .filter-section {
       margin-top: 20px;
       padding: 10px;
-      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
     }
-    .filter-buttons button {
-      margin-right: 10px;
+    
+    .filter-buttons {
+      text-align: center;
       margin-bottom: 10px;
-      padding: 5px 10px;
     }
+    
+    .filter-buttons button {
+      margin: 0 5px 10px 5px;
+      padding: 8px 16px;
+      background-color: var(--primary-color);
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    .filter-buttons button:hover {
+      background-color: var(--primary-hover);
+    }
+    
     .input-section {
       margin-top: 10px;
       padding: 5px 0;
     }
+    
     .input-section label {
       display: inline-block;
       width: 150px;
+      font-weight: bold;
     }
+    
+    .input-section input,
+    .input-section select {
+      padding: 5px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+    
     .input-section button.remove-filter {
-      margin-left: 10px;
-      padding: 2px 5px;
-      background-color: #e74c3c;
-      color: white;
+      padding: 5px 10px;
+      background-color: var(--accent-color);
       border: none;
+      border-radius: 4px;
+      color: #fff;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
+    
+    #toggle-filters-btn,
     #search-btn {
-      margin-top: 20px;
-      padding: 8px 16px;
+      display: block;
+      width: 200px;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: var(--primary-color);
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.3s ease;
     }
+    
+    #toggle-filters-btn:hover,
+    #search-btn:hover {
+      background-color:green;
+    }
+    
+    #search-btn:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+    
     .hidden {
       display: none;
     }
-    #search-result {
-      margin-top: 20px;
-      padding: 10px;
-      border: 1px solid #007acc;
-      background-color: #f1faff;
+    
+    
+    #search-result table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    #search-result thead {
+      background-color: var(--primary-color);
+      color: #fff;
+    }
+    
+    #search-result th,
+    #search-result td {
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      text-align: left;
+    }
+    
+    #search-result tbody tr:nth-child(even) {
+      background-color: #f3f3f3;
+    }
+    
+    
+    #date-filter-options label {
+      margin-right: 10px;
+      display: inline-block;
     }
   </style>
 </head>
 <body>
-  <h1>CHECK STATUS</h1>
-  <button id="toggle-filters-btn">Add Search Filters</button>
+  <div class="container">
+    <h1>CHECK STATUS</h1>
+    <button id="toggle-filters-btn">Add Search Filters</button>
 
-  <div id="filters-container" class="filter-section hidden">
-    <div class="filter-buttons">
-      <button type="button" id="btn-invoice">Invoice Number</button>
-      <button type="button" id="btn-department">Department</button>
-      <button type="button" id="btn-date">Date of Submission</button>
+    <div id="filters-container" class="filter-section hidden">
+      <div class="filter-buttons">
+        <button type="button" id="btn-invoice">Invoice Number</button>
+        <button type="button" id="btn-department">Department</button>
+        <button type="button" id="btn-date">Date of Submission</button>
+      </div>
+      <div id="filter-inputs"></div>
     </div>
-    <div id="filter-inputs"></div>
+
+    <button id="search-btn">Search</button>
+    <div id="search-result"></div>
   </div>
-
-  <button id="search-btn">Search</button>
-
-  <div id="search-result"></div>
   
   <script>
     const API_KEY = "AIzaSyDBEVr0BAAUdQfSa0_0NzLKtp8Z6HYFOkQ";
     const SPREADSHEET_ID = "1gjHDxitgSFzSfnhfY_OK9Urjm--4MaOf1wsc9je6-C4";
     const SHEET_NAME = "Sheet4";
     const RANGE = "A1:Z1000";
-    const googleSheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/1gjHDxitgSFzSfnhfY_OK9Urjm--4MaOf1wsc9je6-C4/values/Sheet4!A1:Z1000?key=AIzaSyDBEVr0BAAUdQfSa0_0NzLKtp8Z6HYFOkQ`;
+    const googleSheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!${RANGE}?key=${API_KEY}`;
 
     const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
     const filtersContainer = document.getElementById('filters-container');
@@ -81,14 +185,19 @@
     const resultDiv = document.getElementById('search-result');
 
     let activeFilters = { invoice: false, department: false, date: false };
+
+   
     toggleFiltersBtn.addEventListener('click', () => {
       filtersContainer.classList.toggle('hidden');
     });
 
+    
     function updateSearchButtonState() {
       searchBtn.disabled = !(activeFilters.invoice || activeFilters.department || activeFilters.date);
     }
     updateSearchButtonState();
+
+    
     document.getElementById('btn-invoice').addEventListener('click', () => {
       if (!activeFilters.invoice) {
         const invoiceDiv = document.createElement('div');
@@ -104,6 +213,8 @@
       }
       updateSearchButtonState();
     });
+
+    
     document.getElementById('btn-department').addEventListener('click', () => {
       if (!activeFilters.department) {
         const departmentDiv = document.createElement('div');
@@ -126,112 +237,225 @@
       }
       updateSearchButtonState();
     });
+
+   
     document.getElementById('btn-date').addEventListener('click', () => {
       if (!activeFilters.date) {
         const dateDiv = document.createElement('div');
         dateDiv.id = 'date-input';
         dateDiv.classList.add('input-section');
         dateDiv.innerHTML = `
-          <label for="submission-date">Date of Submission:</label>
-          <input type="date" id="submission-date" name="submission-date">
-          <button type="button" class="remove-filter" data-filter="date">Remove</button>
+          <div id="date-filter-options" style="margin-bottom:10px;">
+            <label><input type="radio" name="dateOption" value="year"> Year</label>
+            <label><input type="radio" name="dateOption" value="month"> Month</label>
+            <label><input type="radio" name="dateOption" value="monthYear"> Month &amp; Year</label>
+            <label><input type="radio" name="dateOption" value="fullDate" checked> Full Date</label>
+            <div style="margin-top:10px; text-align:center;">
+              <button type="button" id="date-type-ok">OK</button>
+            </div>
+          </div>
+          <div id="date-input-container"></div>
+          <div style="text-align:center; margin-top:10px;">
+            <button type="button" class="remove-filter" data-filter="date">Remove</button>
+          </div>
         `;
         filterInputsContainer.appendChild(dateDiv);
         activeFilters.date = true;
+
+       
+        document.getElementById('date-type-ok').addEventListener('click', () => {
+          const selectedOption = document.querySelector('input[name="dateOption"]:checked').value;
+          
+          dateDiv.setAttribute('data-granularity', selectedOption);
+          const container = document.getElementById('date-input-container');
+          if (selectedOption === 'year') {
+           
+            let options = '<option value="">Select Year</option>';
+            for (let y = 2000; y <= 2030; y++) {
+              options += `<option value="${y}">${y}</option>`;
+            }
+            container.innerHTML = `<label for="submission-year">Select Year:</label>
+                                   <select id="submission-year" name="submission-year">
+                                     ${options}
+                                   </select>`;
+          } else if (selectedOption === 'month') {
+          
+            let options = '<option value="">Select Month</option>';
+            const months = [
+              { value: "01", name: "January" },
+              { value: "02", name: "February" },
+              { value: "03", name: "March" },
+              { value: "04", name: "April" },
+              { value: "05", name: "May" },
+              { value: "06", name: "June" },
+              { value: "07", name: "July" },
+              { value: "08", name: "August" },
+              { value: "09", name: "September" },
+              { value: "10", name: "October" },
+              { value: "11", name: "November" },
+              { value: "12", name: "December" }
+            ];
+            months.forEach(m => { options += `<option value="${m.value}">${m.name}</option>`; });
+            container.innerHTML = `<label for="submission-month">Select Month:</label>
+                                   <select id="submission-month" name="submission-month">
+                                     ${options}
+                                   </select>`;
+          } else if (selectedOption === 'monthYear') {
+           
+            container.innerHTML = `<label for="submission-month-year">Select Month &amp; Year:</label>
+                                   <input type="month" id="submission-month-year" name="submission-month-year">`;
+          } else { 
+            
+            container.innerHTML = `<label for="submission-date">Select Full Date:</label>
+                                   <input type="date" id="submission-date" name="submission-date">`;
+          }
+          
+          document.getElementById('date-filter-options').style.display = 'none';
+        });
       }
       updateSearchButtonState();
     });
+
+   
     filterInputsContainer.addEventListener('click', (event) => {
       if (event.target.classList.contains('remove-filter')) {
         const filterType = event.target.getAttribute('data-filter');
-        event.target.parentElement.remove();
+        event.target.parentElement.parentElement.remove();
         activeFilters[filterType] = false;
         updateSearchButtonState();
       }
     });
+
+   
+    function parseDateFromSheet(rawDate) {
+      const parts = rawDate.split('/');
+      if (parts.length !== 3) return null;
+      const [day, month, year] = parts;
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+
+    
     searchBtn.addEventListener('click', () => {
       if (!(activeFilters.invoice || activeFilters.department || activeFilters.date)) {
         alert("Please select at least one search filter.");
         return;
       }
-    
+
+      
       const filters = {};
-      if (activeFilters.invoice)
+      if (activeFilters.invoice) {
         filters.invoice = document.getElementById('invoice').value.trim();
-      if (activeFilters.department)
+      }
+      if (activeFilters.department) {
         filters.department = document.getElementById('department').value.trim();
-      if (activeFilters.date)
-        filters.date = document.getElementById('submission-date').value.trim();
+      }
+      if (activeFilters.date) {
+        const dateDiv = document.getElementById('date-input');
+        const gran = dateDiv.getAttribute('data-granularity') || "fullDate";
+        filters.dateGranularity = gran;
+        let selectedValue = "";
+        if (gran === 'year') {
+          selectedValue = document.getElementById('submission-year').value;
+        } else if (gran === 'month') {
+          selectedValue = document.getElementById('submission-month').value;
+        } else if (gran === 'monthYear') {
+          selectedValue = document.getElementById('submission-month-year').value;
+        } else { 
+          selectedValue = document.getElementById('submission-date').value;
+        }
+        filters.date = selectedValue;
+      }
       
       console.log("Searching with filters:", filters);
 
+      
       fetch(googleSheetUrl)
         .then(response => response.json())
         .then(data => {
-             console.log("API Response Data:", data); // Log the entire response
+          console.log("API Response Data:", data);
           const rows = data.values;
           if (!rows || rows.length === 0) {
             resultDiv.innerHTML = "<h2>No data found in the sheet.</h2>";
             return;
           }
-          
+
           
           const headers = rows[0].map(header => header.toLowerCase());
-          console.log("Headers:", headers);
           const objects = rows.slice(1).map(row => {
-            let obj = {};
+            const obj = {};
             headers.forEach((header, index) => {
               obj[header] = row[index] ? String(row[index]).trim() : "";
             });
             return obj;
           });
-          console.log("Data objects:", objects);
 
-          let bestRow = null;
-          let highestScore = 0;
+          
+          let matchingRows = [];
           objects.forEach(row => {
-           let score = 0;
-         if (filters.invoice) {
-         const filterInvoice = filters.invoice.toLowerCase();
-         let invoiceValue = row["invoice"] ? String(row["invoice"]).trim().toLowerCase() : "";
-         console.log("Comparing Invoice:", invoiceValue, "with", filterInvoice);
-         if (invoiceValue === filterInvoice) {
-         score++;
-       }
-     }
-             if (filters.department) {
-         const filterDepartment = filters.department.toLowerCase();
-         let departmentValue = row["department"] ? String(row["department"]).trim().toLowerCase() : "";
-         console.log("Comparing Deparment:", departmentValue, "with", filterDepartment);
-         if (departmentValue === filterDepartment) {
-         score++;
-       }
-     }
-          if (filters.date) {
-         const filterDate = filters.date.toLowerCase();
-         let dateValue = row["date"] ? String(row["date"]).trim().toLowerCase() : "";
-         console.log("Comparing date:", dateValue, "with", filterDate);
-         if (dateValue === filterDate) {
-         score++;
-       }
-     }
-         
-         console.log("Row score:", score, "for row:", row);
-  if (score > highestScore) {
-    highestScore = score;
-    bestRow = row;
-  }
-});
+            let score = 0;
 
-          if (bestRow && highestScore > 0) {
-            resultDiv.innerHTML = "<h2>Best Matching Row:</h2><pre>" + JSON.stringify(bestRow, null, 2) + "</pre>";
+           
+            if (filters.invoice) {
+              const filterInvoice = filters.invoice.toLowerCase();
+              const invoiceValue = row["invoice"] ? row["invoice"].toLowerCase() : "";
+              if (invoiceValue === filterInvoice) score++;
+            }
+
+           
+            if (filters.department) {
+              const filterDepartment = filters.department.toLowerCase();
+              const departmentValue = row["department"] ? row["department"].toLowerCase() : "";
+              if (departmentValue === filterDepartment) score++;
+            }
+
+            
+            if (filters.date && row["date"]) {
+              const rawDate = row["date"].trim();
+              const formattedDate = parseDateFromSheet(rawDate); 
+              if (formattedDate && !isNaN(Date.parse(formattedDate))) {
+                if (filters.dateGranularity === 'year') {
+                  if (formattedDate.substring(0, 4) === filters.date) score++;
+                } else if (filters.dateGranularity === 'month') {
+                  if (formattedDate.substring(5, 7) === filters.date) score++;
+                } else if (filters.dateGranularity === 'monthYear') {
+                  if (formattedDate.substring(0, 7) === filters.date) score++;
+                } else { 
+                  if (formattedDate === filters.date) score++;
+                }
+              } else {
+                console.warn("Invalid date format in data:", rawDate);
+              }
+            }
+            
+            if (score > 0) {
+              matchingRows.push(row);
+            }
+          });
+
+          
+          if (matchingRows.length > 0) {
+            let tableHTML = "<h2>Matching Rows:</h2>";
+            tableHTML += "<table><thead><tr>";
+            headers.forEach(header => {
+              tableHTML += `<th>${header}</th>`;
+            });
+            tableHTML += "</tr></thead><tbody>";
+            matchingRows.forEach(row => {
+              tableHTML += "<tr>";
+              headers.forEach(header => {
+                tableHTML += `<td>${row[header] || ""}</td>`;
+              });
+              tableHTML += "</tr>";
+            });
+            tableHTML += "</tbody></table>";
+            resultDiv.innerHTML = tableHTML;
           } else {
-            resultDiv.innerHTML = "<h2>No matching row found.</h2>";
+            resultDiv.innerHTML = "<h2>No matching rows found.</h2>";
           }
         })
-        .catch(err => {
-          console.error("Error fetching Google Sheet data:", err);
-          resultDiv.innerHTML = "<h2>Error loading data.</h2>";
+        .catch(error => {
+          console.error("Error fetching data:", error);
+          resultDiv.innerHTML = "<h2>Error fetching data.</h2>";
         });
     });
   </script>
